@@ -14,7 +14,6 @@ class HTTPResponse(object):
         self.code = code
         self.body = body
 
-
 class HTTPClient(object):
     # def get_host_port(self,url):
 
@@ -24,15 +23,13 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        try:
-            status_code = data.split('\r\n')[0]
-            code = int(status_code.split()[1])
-            if 100 <= code <= 599:
-                return code
-            else:
-                return 404
-        except:
-            return None
+        status_code = data.split('\r\n')[0]
+        code = int(status_code.split()[1])
+        if 100 <= code <= 599:
+            return code
+        else:
+            return 404
+
     def get_headers(self, data):
         headers = data.split('\r\n')[1:]
         return headers
@@ -99,8 +96,9 @@ class HTTPClient(object):
         else:
             encoded_args = urllib.parse.urlencode(args)
 
-        request = "POST /%s HTTP/1.1\r\nHost: %s\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %s\r\nConnection: close\r\n\r\n" % (
-            path, host, str(len(encoded_args)))
+        request = "POST /%s HTTP/1.1\r\nHost: %s\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %d\r\nConnection: close\r\n\r\n" % (
+            path, host, int(len(encoded_args)))
+        request += encoded_args
         self.sendall(request)
 
         response = self.recvall(self.socket)
@@ -109,6 +107,7 @@ class HTTPClient(object):
 
         self.close()
         return HTTPResponse(code, body)
+
 
     def command(self, url, command="GET", args=None):
         if (command == "POST"):
